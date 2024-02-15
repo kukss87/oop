@@ -29,7 +29,7 @@ class Employee:
         return self.salary
 
 
-class Room:
+class ShoppingRoom:
     def __init__(self):
         self.sections = []
 
@@ -111,15 +111,26 @@ class Contractor:
     pass
 
 
+class Departments:
+    def __init__(self):
+        self.departments = []
+
+    def get_departments(self):
+        return self.departments
+
+    def add_department(self, department):
+        self.departments.append(department)
+
+
 class Store:
-    def __init__(self, shopping_room):
-        self.sections = shopping_room.get_sections()
+    def __init__(self, department):
+        self.departments = department.get_department()
 
-    def get_sections(self):
-        return self.sections
+    def get_departments(self):
+        return self.departments
 
-    def add_sections(self, shopping_room: Room):
-        self.sections.append(shopping_room)
+    def add_departments(self, department):
+        self.departments.append(department)
 
 
 if __name__ == '__main__':
@@ -129,14 +140,14 @@ if __name__ == '__main__':
     s2 = Section(name='Meat')
     e1 = Employee(name='Bill Johns', section=s1, position='unknown', salary=2000)
     e2 = Employee(name='Tag Jones', section=s1, position='head', salary=4000)
-    shopping_room = Room()
+    shopping_room = ShoppingRoom()
     shopping_room.add_sections(s1)
     shopping_room.add_sections(s2)
-    shop = Store(shopping_room)
+    # shop = Store(shopping_room)
     hr.hire(worker=e1, section=s1)
     hr.hire(worker=e2, section=s1)
     print(s1.get_salary_request())
-    print(account.get_sections())
-    print(shop.get_sections())
+    print(account.get_departments())
+    # print(shop.get_departments())
 
 
