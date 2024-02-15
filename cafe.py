@@ -1,4 +1,21 @@
 # models
+class Register:
+    def __init__(self, cash):
+        self.cash = cash
+
+    def put_cash(self, money):
+        self.cash += money
+
+    def take_cash(self, money):
+        if money <= self.cash:
+            self.cash -= money
+        else:
+            print('No money')
+
+    def get_cash(self):
+        return self.cash
+
+
 class Dish:
     def __init__(self, name, price, number):
         self.name = name
@@ -50,12 +67,19 @@ class Kitchen:
 class Waiter:
     def __init__(self, name):
         self.name = name
+        self.tips = 0
 
     def open(self):
         print('Welcome to our cafe!')
 
-    def close(self):
+    def close(self, day_cash):
         print('Our cafe is closed!')
+        print(f'Today\'s cash is {day_cash}')
+        print(f'My tips are: {self.tips}')
+
+    def take_money(self, money):
+        print(f'It costs {money}')
+        return money
 
     def take_order(self, names, prices, numbers):
         print(f'Hello, I am a {self.name}')
@@ -83,21 +107,29 @@ class Waiter:
                 else:
                     print('I can\'t do this')
 
+    def get_tips(self):
+        print('tips... ')
+        tips = int(input('>>> '))
+        self.tips += tips
+
 
 # controller
 class Cafe:
-    def __init__(self, waiter: Waiter, kitchen: Kitchen):
+    def __init__(self, waiter: Waiter, kitchen: Kitchen, register: Register):
         self.waiter = waiter
         self.kitchen = kitchen
+        self.register = register
 
     def start(self):
         self.waiter.open()
         while self.kitchen.is_not_empty():
             names, prices, numbers = self.kitchen.get_info_dishes_for_order()
             name, ordered_number, price = self.waiter.take_order(names=names, prices=prices, numbers=numbers)
+            client_money = waiter.take_money(money=ordered_number * price)
+            self.register.put_cash(client_money)
             self.kitchen.eat_dish(name=name, ordered_number=ordered_number)
-
-        self.waiter.close()
+            self.waiter.get_tips()
+        self.waiter.close(day_cash=self.register.get_cash())  # !!!!
 
 
 if __name__ == '__main__':
@@ -106,5 +138,6 @@ if __name__ == '__main__':
     kitchen.add_dish(dish=Dish(name='pizza', price=11.99, number=2))
     kitchen.add_dish(dish=Dish(name='spaghetti', price=7.99, number=3))
     kitchen.add_dish(dish=Dish(name='mozzarella', price=3.99, number=1))
-    cafe = Cafe(waiter=waiter, kitchen=kitchen)
+    register = Register(cash=100)
+    cafe = Cafe(waiter=waiter, kitchen=kitchen, register=register)
     cafe.start()
