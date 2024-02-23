@@ -1,8 +1,8 @@
+
 class School:
     """Интерфейс для работы со школьной системой"""
 
     # Создать класс School, который будет хранить информацию о школе.
-
     pass
 
 
@@ -11,8 +11,8 @@ class Course:
 
     # Создать класс Course, который будет хранить информацию о курсах.
     # Класс должен иметь методы:
-    # - назначение преподавателя курсу
-    # - добавление студента в курс
+    # - назначение преподавателя курсу +
+    # - добавление студента в курс +
     # - удаление студента из курса
     # - расчет средней оценки по курсу
     # - расчет средней оценки по всем курсам
@@ -27,16 +27,32 @@ class Course:
 
     uid = 0
 
-    def __init__(self, name, teacher='unknown'):
-        self.name = name
-        self.teacher = teacher
+    def __init__(self, title):
+        self.title = title
+        self.teacher = None
         self.students = []
         self.grades = {}
         Course.uid += 1
         self.course_id = Course.uid
 
-    def __str__(self):
-        return f"Course {self.name} (teacher: {self.teacher.name} {self.teacher.surname})"
+    def __repr__(self):
+        return f"Course {self.title}"
+
+    def get_students(self):
+        """Список студентов курса"""
+        return self.students
+
+    def assign_teacher(self, teacher):
+        """Назначение преподавателя курсу"""
+        self.teacher = teacher
+        teacher.attach_course(self)
+        # teacher.courses_attached.append(self)
+
+    def add_student(self, student):
+        """Добавление студента на курс"""
+        self.students.append(student)
+        student.enroll_in_course(self)
+        # student.courses.append(self)
 
 
 class Teacher:
@@ -46,19 +62,25 @@ class Teacher:
     # Класс должен иметь методы:
     # - добавление курса в список курсов преподавателя(courses_attached)
     # - выставление оценки студенту по курсу
-    # - расчет средней оценки по курсу
     # - расчет количества студентов у преподавателя
     # - расчет количества часов  работы преподавателя
     # - список студентов у преподавателя
 
     uid = 0
 
-    def __init__(self, name, surname):
+    def __init__(self, name):
         self.name = name
-        self.surname = surname
         self.courses_attached = []
+        self.courses_available = []
         Teacher.uid += 1
         self.teacher_id = Teacher.uid
+
+    def __repr__(self):
+        return f'{self.name}'
+
+    def attach_course(self, course):
+        """Добавление курса в список курсов преподавателя"""
+        self.courses_attached.append(course)
 
 
 class Student:
@@ -73,15 +95,25 @@ class Student:
 
     uid = 0
 
-    def __init__(self, name, surname, gender):
+    def __init__(self, name, gender=None):
         self.name = name
-        self.surname = surname
         self.gender = gender
         self.finished_courses = []
         self.courses_in_progress = []
         self.grades = {}
         Student.uid += 1
         self.student_id = Student.uid
+
+    def __repr__(self):
+        return f'{self.name}'
+
+    def enroll_in_course(self, course):
+        """Запись на курс"""
+        self.courses_in_progress.append(course)
+
+    def get_current_courses(self):
+        """Список курсов, которые студент записан на"""
+        return self.courses_in_progress
 
 
 class Lesson:
@@ -106,6 +138,29 @@ class Schedule:
 
 if __name__ == '__main__':
     math = Course('Math')
-    teacher1 = Teacher('John', 'Smith')
-    student1 = Student('John', 'Smith', 'male')
-    student2 = Student('Jane', 'Smith', 'female')
+    english = Course('English')
+    history = Course('History')
+    physics = Course('Physics')
+
+    teacher1 = Teacher('Tracy Solomon')
+    teacher2 = Teacher('Kathy Haas')
+    teacher3 = Teacher('John Perez')
+
+    student1 = Student('Michele Mann DDS')
+    student2 = Student('Gregory Shepherd')
+    student3 = Student('Jennifer Cunningham')
+    student4 = Student('Seth Meyers')
+    student5 = Student('Joseph Diaz')
+
+    english.assign_teacher(teacher1)
+    history.assign_teacher(teacher2)
+    math.assign_teacher(teacher3)
+
+    english.add_student(student1)
+    english.add_student(student2)
+    english.add_student(student4)
+    english.add_student(student5)
+
+    print(english.get_students())
+    print(english.teacher)
+    print(student1.get_current_courses())
