@@ -13,7 +13,7 @@ class Course:
     # Класс должен иметь методы:
     # - назначение преподавателя курсу +
     # - добавление студента в курс +
-    # - удаление студента из курса
+    # - удаление студента из курса +
     # - расчет средней оценки по курсу
     # - расчет средней оценки по всем курсам
     # - расчет средней оценки по всем студентам
@@ -27,8 +27,9 @@ class Course:
 
     uid = 0
 
-    def __init__(self, title):
+    def __init__(self, title, duration):
         self.title = title
+        self.duration = duration
         self.teacher = None
         self.students = []
         self.grades = {}
@@ -42,17 +43,24 @@ class Course:
         """Список студентов курса"""
         return self.students
 
+    def get_teachers_name(self):
+        """Имя преподавателя курса"""
+        return self.teacher.name if self.teacher else None
+
     def assign_teacher(self, teacher):
         """Назначение преподавателя курсу"""
         self.teacher = teacher
         teacher.attach_course(self)
-        # teacher.courses_attached.append(self)
 
     def add_student(self, student):
         """Добавление студента на курс"""
         self.students.append(student)
         student.enroll_in_course(self)
-        # student.courses.append(self)
+
+    def expel_student(self, student):
+        """Удаление студента из курса"""
+        self.students.remove(student)
+        student.leave_course(self)
 
 
 class Teacher:
@@ -107,16 +115,27 @@ class Student:
     def __repr__(self):
         return f'{self.name}'
 
+    def get_current_courses(self):
+        """Список курсов, на которые студент записан"""
+        return self.courses_in_progress
+
+    def get_finished_courses(self):
+        """Список курсов, завершенных студентом"""
+        return self.finished_courses
+
     def enroll_in_course(self, course):
         """Запись на курс"""
         self.courses_in_progress.append(course)
 
-    def get_current_courses(self):
-        """Список курсов, которые студент записан на"""
-        return self.courses_in_progress
+    def leave_course(self, course):
+        self.courses_in_progress.remove(course)
 
 
 class Lesson:
+    """Класс для работы с занятиями"""
+    # - добавление занятия в расписание
+    # - удаление занятия из расписания
+    # - расчет количества занятий в расписании
     pass
 
 
@@ -137,10 +156,10 @@ class Schedule:
 
 
 if __name__ == '__main__':
-    math = Course('Math')
-    english = Course('English')
-    history = Course('History')
-    physics = Course('Physics')
+    math = Course('Math', 10)
+    english = Course('English', 10)
+    history = Course('History', 10)
+    physics = Course('Physics', 10)
 
     teacher1 = Teacher('Tracy Solomon')
     teacher2 = Teacher('Kathy Haas')
@@ -160,6 +179,7 @@ if __name__ == '__main__':
     english.add_student(student2)
     english.add_student(student4)
     english.add_student(student5)
+    english.expel_student(student1)
 
     print(english.get_students())
     print(english.teacher)
