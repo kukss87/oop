@@ -1,9 +1,17 @@
 
 class School:
     """Интерфейс для работы со школьной системой"""
+    # Экземпляр класса School может быть только один
 
-    # Создать класс School, который будет хранить информацию о школе.
-    pass
+    __instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if cls.__instance is None:
+            cls.__instance = super().__new__(cls)
+        return cls.__instance
+
+    def __str__(self):
+        return 'School object'
 
 
 class Course:
@@ -33,11 +41,21 @@ class Course:
         self.teacher = None
         self.students = []
         self.grades = {}
-        Course.uid += 1
-        self.course_id = Course.uid
+        self.course_id = self.autoincrement()
+        # Course.uid += 1    --> Заменено на метод класса
+        # self.course_id = Course.uid    --> Заменено на метод класса
+
+    @classmethod
+    def autoincrement(cls):
+        cls.uid += 1
+        instance_id = cls.uid
+        return instance_id
 
     def __repr__(self):
         return f"Course {self.title}"
+
+    def get_uid(self):
+        return self.course_id
 
     def get_students(self):
         """Список студентов курса"""
@@ -83,8 +101,8 @@ class Teacher:
         Teacher.uid += 1
         self.teacher_id = Teacher.uid
 
-    def __repr__(self):
-        return f'{self.name}'
+    def __str__(self):
+        return f'{str(self.name)}'
 
     def attach_course(self, course):
         """Добавление курса в список курсов преподавателя"""
@@ -156,6 +174,7 @@ class Schedule:
 
 
 if __name__ == '__main__':
+    school = School()
     math = Course('Math', 10)
     english = Course('English', 10)
     history = Course('History', 10)
@@ -184,3 +203,5 @@ if __name__ == '__main__':
     print(english.get_students())
     print(english.teacher)
     print(student1.get_current_courses())
+    print(physics.get_uid())
+
