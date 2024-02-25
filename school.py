@@ -59,26 +59,37 @@ class Course:
 
     def get_students(self):
         """Список студентов курса"""
+        if not self.students:
+            return f'На курса {self} пока нет ни одного студента'
         return self.students
 
-    def get_teachers_name(self):
+    def get_teacher(self):
         """Имя преподавателя курса"""
-        return self.teacher.name if self.teacher else None
+        return self.teacher
 
     def assign_teacher(self, teacher):
         """Назначение преподавателя курсу"""
-        self.teacher = teacher
-        teacher.attach_course(self)
+        if isinstance(teacher, Teacher):
+            self.teacher = teacher
+            teacher.attach_course(self)
+        else:
+            raise TypeError(f'{teacher} должен быть экземпляром класса Teacher')
 
     def add_student(self, student):
         """Добавление студента на курс"""
-        self.students.append(student)
-        student.enroll_in_course(self)
+        if isinstance(student, Student):
+            self.students.append(student)
+            student.enroll_in_course(self)
+        else:
+            raise TypeError(f'{student} должен быть экземпляром класса Student')
 
     def expel_student(self, student):
         """Удаление студента из курса"""
-        self.students.remove(student)
-        student.leave_course(self)
+        if student in self.students:
+            self.students.remove(student)
+            student.leave_course(self)
+        else:
+            raise TypeError(f'{student} еще не зачислен на курс')
 
 
 class Teacher:
@@ -98,8 +109,15 @@ class Teacher:
         self.name = name
         self.courses_attached = []
         self.courses_available = []
-        Teacher.uid += 1
-        self.teacher_id = Teacher.uid
+        self.teacher_id = self.autoincrement()
+        # Teacher.uid += 1
+        # self.teacher_id = Teacher.uid
+
+    @classmethod
+    def autoincrement(cls):
+        cls.uid += 1
+        instance_uid = cls.uid
+        return instance_uid
 
     def __str__(self):
         return f'{str(self.name)}'
@@ -127,8 +145,15 @@ class Student:
         self.finished_courses = []
         self.courses_in_progress = []
         self.grades = {}
-        Student.uid += 1
-        self.student_id = Student.uid
+        self.student_id = self.autoincrement()
+        # Student.uid += 1
+        # self.student_id = Student.uid
+
+    @classmethod
+    def autoincrement(cls):
+        cls.uid += 1
+        instance_uid = cls.uid
+        return instance_uid
 
     def __repr__(self):
         return f'{self.name}'
@@ -198,10 +223,13 @@ if __name__ == '__main__':
     english.add_student(student2)
     english.add_student(student4)
     english.add_student(student5)
+    english.add_student(student3)
     english.expel_student(student1)
 
     print(english.get_students())
-    print(english.teacher)
-    print(student1.get_current_courses())
+    print(history.get_students())
+    print(physics.get_teacher())
+    print(english.get_teacher())
+    print(student2.get_current_courses())
     print(physics.get_uid())
 
