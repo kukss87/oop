@@ -1,4 +1,3 @@
-
 class School:
     """Интерфейс для работы со школьной системой"""
     # Экземпляр класса School может быть только один
@@ -52,7 +51,10 @@ class Course:
         return instance_id
 
     def __repr__(self):
-        return f"Course {self.title}"
+        return self.title
+
+    def get_title(self):
+        return self.title
 
     def get_uid(self):
         return self.course_id
@@ -119,8 +121,8 @@ class Teacher:
         instance_uid = cls.uid
         return instance_uid
 
-    def __str__(self):
-        return f'{str(self.name)}'
+    def __repr__(self):
+        return self.name
 
     def attach_course(self, course):
         """Добавление курса в список курсов преподавателя"""
@@ -156,7 +158,7 @@ class Student:
         return instance_uid
 
     def __repr__(self):
-        return f'{self.name}'
+        return self.name
 
     def get_current_courses(self):
         """Список курсов, на которые студент записан"""
@@ -166,9 +168,22 @@ class Student:
         """Список курсов, завершенных студентом"""
         return self.finished_courses
 
+    def get_all_grades(self):
+        return self.grades
+
+    def get_grade(self, course):
+        course_title = course.get_title()
+        return self.grades[course_title]
+
     def enroll_in_course(self, course):
         """Запись на курс"""
         self.courses_in_progress.append(course)
+        course_title = course.get_title()
+        self.grades[course_title] = []
+
+    def new_grade(self, course, grade):
+        course_title = course.get_title()
+        self.grades[course_title].append(grade)
 
     def leave_course(self, course):
         self.courses_in_progress.remove(course)
@@ -221,6 +236,8 @@ if __name__ == '__main__':
 
     english.add_student(student1)
     english.add_student(student2)
+    history.add_student(student2)
+    math.add_student(student2)
     english.add_student(student4)
     english.add_student(student5)
     english.add_student(student3)
@@ -232,4 +249,10 @@ if __name__ == '__main__':
     print(english.get_teacher())
     print(student2.get_current_courses())
     print(physics.get_uid())
+
+    student2.new_grade(english, 10)
+    student2.new_grade(english, 11)
+    student2.new_grade(history, 8)
+    print(student2.get_all_grades())
+    print(student2.get_grade(english))
 
