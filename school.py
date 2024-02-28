@@ -18,18 +18,11 @@ class Course:
 
     # Создать класс Course, который будет хранить информацию о курсах.
     # Класс должен иметь методы:
-    # - назначение преподавателя курсу +
-    # - добавление студента в курс +
-    # - удаление студента из курса +
     # - расчет средней оценки по курсу
-    # - расчет средней оценки по всем курсам
     # - расчет средней оценки по всем студентам
     # - расчет средней оценки по всем студентам по курсу
-    # - расчет количества студентов в курсе
     # - расчет посещаемости курса
     # - расчет количества оценок студента по курсу
-    # - список студентов курса
-    # - список курсов студента
     # - список студентов курса без оценок
 
     uid = 0
@@ -41,14 +34,15 @@ class Course:
         self.students = []
         self.grades = {}
         self.course_id = self.autoincrement()
-        # Course.uid += 1    --> Заменено на метод класса
-        # self.course_id = Course.uid    --> Заменено на метод класса
 
     @classmethod
     def autoincrement(cls):
         cls.uid += 1
         instance_id = cls.uid
         return instance_id
+
+    def __str__(self):
+        return self.title
 
     def __repr__(self):
         return self.title
@@ -65,8 +59,13 @@ class Course:
             return f'На курса {self} пока нет ни одного студента'
         return self.students
 
+    def get_number_of_students(self):
+        return len(self.students)
+
     def get_teacher(self):
         """Имя преподавателя курса"""
+        if not self.teacher:
+            return f'На курс {self} учитель еще не назначен'
         return self.teacher
 
     def assign_teacher(self, teacher):
@@ -93,6 +92,12 @@ class Course:
         else:
             raise TypeError(f'{student} еще не зачислен на курс')
 
+    def average_grade(self):
+        length = len([student for student in self.students if student.has_grades(self)])
+        summa = sum([student.get_course_average_grade(self) for student in self.students if student.has_grades(self)])
+        avg = summa/length
+        return avg
+
 
 class Teacher:
     """Класс для работы с преподавателями"""
@@ -112,8 +117,6 @@ class Teacher:
         self.courses_attached = []
         self.courses_available = []
         self.teacher_id = self.autoincrement()
-        # Teacher.uid += 1
-        # self.teacher_id = Teacher.uid
 
     @classmethod
     def autoincrement(cls):
@@ -128,6 +131,10 @@ class Teacher:
         """Добавление курса в список курсов преподавателя"""
         self.courses_attached.append(course)
 
+    @staticmethod
+    def rate(course, student, grade):
+        student.new_grade(course, grade)
+
 
 class Student:
     """Класс для работы со студентами"""
@@ -135,9 +142,8 @@ class Student:
     # Создать класс Student, который будет хранить информацию о студентах.
     # Класс должен иметь методы:
     # - добавление курса в один из двух списков (finished_courses или courses_in_progress)
-    # - добавление оценки студента по курсу
-    # - расчет средней оценки по курсу
-    # - расчет средней оценки по всем курсам
+    # - когда заканчивается курс из списка courses_in_progress, он автоматически добавляется в
+    #  - список finished_courses
 
     uid = 0
 
@@ -148,8 +154,6 @@ class Student:
         self.courses_in_progress = []
         self.grades = {}
         self.student_id = self.autoincrement()
-        # Student.uid += 1
-        # self.student_id = Student.uid
 
     @classmethod
     def autoincrement(cls):
@@ -157,12 +161,18 @@ class Student:
         instance_uid = cls.uid
         return instance_uid
 
+    def __str__(self):
+        return self.name
+
     def __repr__(self):
         return self.name
 
     def get_current_courses(self):
         """Список курсов, на которые студент записан"""
         return self.courses_in_progress
+
+    def get_number_of_current_courses(self):
+        return len(self.courses_in_progress)
 
     def get_finished_courses(self):
         """Список курсов, завершенных студентом"""
@@ -172,18 +182,30 @@ class Student:
         return self.grades
 
     def get_grade(self, course):
-        course_title = course.get_title()
-        return self.grades[course_title]
+        return self.grades[course]
+
+    def has_grades(self, course):
+        if not self.grades[course]:
+            return False
+        return True
+
+    def get_course_average_grade(self, course):
+        if self.has_grades(course):
+            return round(sum(self.grades[course])/len(self.grades[course]), 2)
+        return 'No marks'
+
+    def get_total_average_grade(self):
+        length = len([item for item in self.grades if self.has_grades(item)])
+        avg = sum([self.get_course_average_grade(subj) for subj in self.grades if self.has_grades(subj)])/length
+        return round(avg, 2)
+
+    def new_grade(self, course, grade):
+        self.grades[course].append(grade)
 
     def enroll_in_course(self, course):
         """Запись на курс"""
         self.courses_in_progress.append(course)
-        course_title = course.get_title()
-        self.grades[course_title] = []
-
-    def new_grade(self, course, grade):
-        course_title = course.get_title()
-        self.grades[course_title].append(grade)
+        self.grades[course] = []
 
     def leave_course(self, course):
         self.courses_in_progress.remove(course)
@@ -244,15 +266,25 @@ if __name__ == '__main__':
     english.expel_student(student1)
 
     print(english.get_students())
+    print(english.get_number_of_students())
     print(history.get_students())
     print(physics.get_teacher())
     print(english.get_teacher())
     print(student2.get_current_courses())
+    print(student2.get_number_of_current_courses())
     print(physics.get_uid())
 
-    student2.new_grade(english, 10)
-    student2.new_grade(english, 11)
-    student2.new_grade(history, 8)
+    student2.new_grade(english, 12)
+    student2.new_grade(english, 12)
+    student3.new_grade(english, 10)
+    student3.new_grade(english, 10)
+    teacher2.rate(math, student2, 1)
+
     print(student2.get_all_grades())
     print(student2.get_grade(english))
+    print(student2.get_course_average_grade(english))
+    print(student2.get_course_average_grade(history))
+    print(student2.get_total_average_grade())
+    print(english.average_grade())
+    print(math.average_grade())
 
