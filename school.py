@@ -1,5 +1,6 @@
 import random
 
+
 class School:
     """Интерфейс для работы со школьной системой"""
     # Экземпляр класса School может быть только один
@@ -37,14 +38,10 @@ class School:
         full_list = list(set(full_list))
         return full_list
 
-    @staticmethod
-    def sort_method(item):  # helper method
-        return item[1]
-
     def sort_all_students(self):
         full_list = self.join_lists()
         lst = [(student, student.get_total_average_grade()) for student in full_list]
-        lst.sort(reverse=True, key=self.sort_method)
+        lst.sort(reverse=True, key=lambda x: x[1])
         return lst
 
 
@@ -134,20 +131,16 @@ class Course:
         avg = summa/length
         return round(avg, 2)
 
-    @staticmethod
-    def sort_method(item):  # helper method
-        return item[1]
-
     def sorted_students(self):
         lst = [(student, float(student.get_course_average_grade(self))) for student in self.grades if student in self.students]
-        lst.sort(key=self.sort_method, reverse=True)
+        lst.sort(key=lambda x: x[1], reverse=True)
         return lst
 
     def students_without_grades(self):
         lst = [student for student in self.grades if not self.has_grades(student)]
         return lst
 
-    def start_course(self):
+    def course_flow(self):
         print(f'Курс {self.title} начат')
         for les in range(self.duration):
             for stu in range(2):
@@ -397,7 +390,7 @@ if __name__ == '__main__':
     print(school.get_courses())
     print('*****************')
     print(school.sort_all_students())
-    english.start_course()
+    english.course_flow()
     print(english.average_grade())
     print(student1.get_course_average_grade(english))
     print(student2.get_course_average_grade(english))
